@@ -34,6 +34,7 @@
   import {
     formatRemainingCompact,
     jobFallbackOf,
+    printerModelLineOf,
     SEVERITY_LABEL_KEY,
     severityBadgeVariant,
     stateBadgeVariant,
@@ -152,7 +153,7 @@
         class="model-state flex items-center justify-between gap-2"
       >
         <p class="min-w-0 truncate text-xs text-muted-foreground">
-          {view.model === view.name ? '' : view.model}
+          {printerModelLineOf(view.model, view.name)}
         </p>
         {#if shows('state')}
           <Badge

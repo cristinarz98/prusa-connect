@@ -40,6 +40,7 @@
   import { PrintDialog, type PrintableFile } from '../print-picker';
   import {
     printerArtworkOf,
+    printerProductNameOf,
     stateBadgeVariant,
   } from '../printers/presentation';
   import type { JobDetailScreenProps } from './types';
@@ -182,7 +183,10 @@
           {
             id: 'model',
             label: t('jobDetail.origin.model'),
-            value: device?.model,
+            value:
+              device === undefined
+                ? undefined
+                : printerProductNameOf(device.model),
           },
           {
             id: 'job',

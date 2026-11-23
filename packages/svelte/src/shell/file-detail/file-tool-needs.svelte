@@ -2,6 +2,7 @@
 <script lang="ts">
   import type { PrintDetails } from '../../data';
   import { formatList, formatUnit, t } from '../../i18n';
+  import { printerProductNameOf } from '../printers/presentation';
   import { toolLabel } from '../printers/tool-label';
   import {
     KeyValueList,
@@ -42,7 +43,7 @@
         {
           id: 'checkedModel',
           label: t('fileDetail.checks.model'),
-          value: checks?.printer_model ?? '',
+          value: printerProductNameOf(checks?.printer_model ?? ''),
         },
         {
           id: 'features',

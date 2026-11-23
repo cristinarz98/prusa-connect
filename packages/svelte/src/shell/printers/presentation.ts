@@ -177,6 +177,16 @@ export const printerModelLabelOf = (model: string): string => {
   return known === 'unknown' ? model : printerModelLabel(known);
 };
 
+/**
+ * The model line under a printer's name: its short model name, or nothing
+ * when the name already says the model in either spelling.
+ */
+export const printerModelLineOf = (model: string, name: string): string => {
+  const label = printerModelLabelOf(model);
+
+  return name === model || name === label ? '' : label;
+};
+
 const XL_BY_TOOLS: Readonly<Partial<Record<number, PrinterModel>>> = {
   2: 'xlmultitool2',
   3: 'xlmultitool3',

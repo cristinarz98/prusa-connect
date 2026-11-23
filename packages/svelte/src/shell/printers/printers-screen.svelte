@@ -40,7 +40,12 @@
     viewModes,
   } from '../../primitives';
   import FleetIssueSummary from './fleet-issue-summary.svelte';
-  import { browserStore, inHeldOrder, printerRowOf } from './presentation';
+  import {
+    browserStore,
+    inHeldOrder,
+    printerModelLabelOf,
+    printerRowOf,
+  } from './presentation';
   import PrinterCard from './printer-card.svelte';
   import PrinterFrame from './printer-frame.svelte';
   import PrintersListing from './printers-listing.svelte';
@@ -258,6 +263,7 @@
     if (param === 'state') {
       return (value) => t(PRINTER_STATE_LABEL_KEY[printerStateOf(value)]);
     }
+    if (param === 'model') return printerModelLabelOf;
 
     return (value) => value;
   };

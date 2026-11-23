@@ -30,6 +30,7 @@
     TableRow,
     type DataRowValue,
   } from '../../primitives';
+  import { printerModelLabelOf } from '../printers/presentation';
   import { formatFingerprint } from './presentation';
   import type { PendingPrinter } from './types';
 
@@ -54,7 +55,9 @@
   let rejecting = $state<PendingPrinter | null>(null);
 
   const nameOf = (entry: PendingPrinter): string =>
-    entry.model ?? t('addPrinter.unknownModel');
+    entry.model === undefined
+      ? t('addPrinter.unknownModel')
+      : printerModelLabelOf(entry.model);
 
   const secondaries = (
     entry: PendingPrinter,
@@ -222,7 +225,9 @@
   }}
   title={rejecting?.model === undefined
     ? t('addPrinter.reject.unknownTitle')
-    : t('addPrinter.reject.title', { printer: rejecting.model })}
+    : t('addPrinter.reject.title', {
+        printer: printerModelLabelOf(rejecting.model),
+      })}
   description={t('addPrinter.reject.note')}
   confirmLabel={t('addPrinter.reject')}
   onConfirm={() => {

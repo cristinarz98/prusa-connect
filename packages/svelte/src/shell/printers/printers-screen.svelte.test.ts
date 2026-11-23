@@ -443,6 +443,36 @@ describe('PrintersScreen', () => {
     expect(lastAsked(listing)?.filters?.severity ?? []).toEqual([]);
   });
 
+  it('names each type by its product name and sends its code', async () => {
+    const listing = fakeListing({
+      items: devicesOf(2),
+      filters: [
+        {
+          param: 'model',
+          kind: 'multi',
+          values: [
+            { value: 'COREONE', count: 1 },
+            { value: 'ZX-42', count: 1 },
+          ],
+        },
+      ],
+    });
+    await render(PrintersScreen, { props: propsOf(2, listing) });
+
+    await showFilters();
+    await page
+      .getByRole('button', { name: new RegExp(t('printers.type')) })
+      .click();
+    await expect.poll(panel).not.toBeNull();
+    const surface = page.elementLocator(panel() ?? document.body);
+    await expect.element(surface.getByText('CORE One')).toBeVisible();
+    await expect.element(surface.getByText('ZX-42')).toBeVisible();
+    expect(surface.getByText('COREONE').elements()).toHaveLength(0);
+
+    await surface.getByRole('button', { name: /CORE One/ }).click();
+    expect(lastAsked(listing)?.filters?.model).toEqual(['COREONE']);
+  });
+
   it('offers every tag the server lists and hands the host the pick', async () => {
     const picked: (readonly string[])[] = [];
     await render(PrintersScreen, {

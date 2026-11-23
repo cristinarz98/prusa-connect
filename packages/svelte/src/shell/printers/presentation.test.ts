@@ -5,6 +5,7 @@ import {
   printerArtworkOf,
   printerHref,
   printerModelLabelOf,
+  printerModelLineOf,
   printerProductNameOf,
   printerRowOf,
   retiredReasonOf,
@@ -23,6 +24,19 @@ describe('printerProductNameOf', () => {
 
   it('gives the short label of a known model', () => {
     expect(printerModelLabelOf('6.1.0')).toBe('HT90');
+    expect(printerModelLabelOf('COREONE')).toBe('CORE One');
+  });
+});
+
+describe('printerModelLineOf', () => {
+  it('names the model of a printer by its short name, not its code', () => {
+    expect(printerModelLineOf('COREONE', 'Workshop')).toBe('CORE One');
+    expect(printerModelLineOf('ZX-42', 'Workshop')).toBe('ZX-42');
+  });
+
+  it('says nothing when the name already says the model', () => {
+    expect(printerModelLineOf('COREONE', 'COREONE')).toBe('');
+    expect(printerModelLineOf('COREONE', 'CORE One')).toBe('');
   });
 });
 

@@ -49,7 +49,11 @@
     type KeyValueRow,
     RowList,
   } from '../../primitives';
-  import { printerModelOf, stateBadgeVariant } from '../printers/presentation';
+  import {
+    printerModelOf,
+    printerProductNameOf,
+    stateBadgeVariant,
+  } from '../printers/presentation';
   import type { FileDetailScreenProps } from './types';
 
   const SLICEABLE = /\.(?:3mf|stl|obj|step|stp|amf)$/i;
@@ -220,7 +224,7 @@
             {
               id: 'slicedFor',
               label: t('fileDetail.fact.slicedFor'),
-              value: details.printer_model ?? '',
+              value: printerProductNameOf(details.printer_model ?? ''),
             },
           ] satisfies KeyValueRow[]
         ).filter((row) => row.value !== ''),

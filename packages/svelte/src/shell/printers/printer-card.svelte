@@ -45,6 +45,7 @@
     formatRemainingCompact,
     jobFallbackOf,
     printActivityOf,
+    printerModelLineOf,
   } from './presentation';
   import type { PrinterCardProps } from './types';
 
@@ -152,7 +153,7 @@
       <div class="flex min-w-0 flex-1 flex-col gap-1.5">
         <div class="flex items-baseline justify-between gap-2">
           <p class="min-w-0 truncate text-xs text-muted-foreground">
-            {row.model === row.name ? '' : row.model}
+            {printerModelLineOf(row.model, row.name)}
           </p>
           <span class="flex shrink-0 items-center gap-1 self-center">
             {#if row.retired}

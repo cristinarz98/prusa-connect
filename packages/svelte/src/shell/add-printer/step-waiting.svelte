@@ -51,7 +51,9 @@
   const refusedTitle = $derived(
     refused?.model === undefined
       ? t('addPrinter.wait.refused.titleUnknown')
-      : t('addPrinter.wait.refused.title', { printer: refused.model }),
+      : t('addPrinter.wait.refused.title', {
+          printer: printerModelLabelOf(refused.model),
+        }),
   );
 
   // The help opens by itself when nothing has happened for a while. The
@@ -148,7 +150,9 @@
   }}
   title={rejecting?.model === undefined
     ? t('addPrinter.reject.unknownTitle')
-    : t('addPrinter.reject.title', { printer: rejecting.model })}
+    : t('addPrinter.reject.title', {
+        printer: printerModelLabelOf(rejecting.model),
+      })}
   description={t('addPrinter.reject.note')}
   confirmLabel={t('addPrinter.reject')}
   onConfirm={() => {

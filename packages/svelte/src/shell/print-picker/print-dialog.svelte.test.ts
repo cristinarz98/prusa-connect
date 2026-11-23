@@ -96,6 +96,26 @@ describe('PrintDialog', () => {
     await expect.element(body().getByText('MK4IS')).toBeVisible();
   });
 
+  it('names a model the file was sliced for by its product name', async () => {
+    await render(PrintDialog, {
+      props: props({
+        devices: [
+          printerOf('idle-one', 'Core #1', 'IDLE', { model: 'COREONE' }),
+          printerOf('idle-two', 'XL #7', 'IDLE', { model: 'XL' }),
+        ],
+        file: { ...file, details: { printer_model: 'COREONE' } },
+      }),
+    });
+
+    await expect
+      .element(body().getByText('Prusa CORE One', { exact: true }))
+      .toBeVisible();
+    expect(
+      body().getByText('This file was sliced for Prusa CORE One.').elements(),
+    ).toHaveLength(1);
+    expect(body().getByText('COREONE').elements()).toHaveLength(0);
+  });
+
   it('discards a replacement request when the open file changes', async () => {
     const onPrint = vi.fn(() =>
       Promise.reject(new StubApiError('core.printer/FILE_NAME_TAKEN', 409)),

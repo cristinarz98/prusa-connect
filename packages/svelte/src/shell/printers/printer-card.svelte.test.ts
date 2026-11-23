@@ -57,6 +57,20 @@ describe('PrinterCard', () => {
       .toHaveAttribute('href', '/printers/p1');
   });
 
+  it('names the model by its product name, not its code', async () => {
+    await render(PrinterCard, {
+      props: {
+        row: row({ model: 'COREONE', artwork: 'core_one' }),
+        shows: everything,
+      },
+    });
+
+    await expect
+      .element(page.getByText('CORE One', { exact: true }))
+      .toBeVisible();
+    expect(page.getByText('COREONE').elements()).toHaveLength(0);
+  });
+
   it('draws the job and how far it has got', async () => {
     await render(PrinterCard, { props: { row: row(), shows: everything } });
 

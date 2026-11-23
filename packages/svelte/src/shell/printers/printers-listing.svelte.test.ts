@@ -93,6 +93,16 @@ describe('PrintersListing', () => {
     expect(shown(host, 'table')).toBe(false);
   });
 
+  it('names the model in the table by its product name, not its code', async () => {
+    const host = await drawIn(WIDE, [
+      row('a', { name: 'Workshop', model: 'COREONE', artwork: 'core_one' }),
+    ]);
+
+    const table = host.querySelector('table');
+    expect(table?.textContent).toContain('CORE One');
+    expect(table?.textContent).not.toContain('COREONE');
+  });
+
   // Both tiers draw the icon, and the stacked one is what a phone shows. A
   // tier that drew it without the reported spelling read a declared model as
   // unrecognised there.

@@ -70,6 +70,15 @@ describe('FileToolNeeds', () => {
     await expect.element(page.getByText('360 mm by 360 mm')).toBeVisible();
   });
 
+  it('names the model the G-code checks for by its product name', async () => {
+    await render(FileToolNeeds, {
+      props: { details: { checks: { printer_model: 'COREONE' } } },
+    });
+
+    await expect.element(page.getByText('Prusa CORE One')).toBeVisible();
+    expect(page.getByText('COREONE').elements()).toHaveLength(0);
+  });
+
   it('draws no table for a file sliced for one filament', async () => {
     await render(FileToolNeeds, {
       props: {

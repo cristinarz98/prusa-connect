@@ -34,7 +34,7 @@
     TableRow,
     TemperatureReading,
   } from '../../primitives';
-  import { stateBadgeVariant } from './presentation';
+  import { printerModelLineOf, stateBadgeVariant } from './presentation';
   import type { PrinterFieldId, PrinterRow } from './types';
 
   const DIRECTION = { asc: 'ascending', desc: 'descending' } as const;
@@ -115,6 +115,7 @@
   </TableHeader>
   <TableBody>
     {#each rows as row (row.id)}
+      {@const modelLine = printerModelLineOf(row.model, row.name)}
       <TableRow
         class={row.tier === 'critical' ? 'bg-destructive/5' : undefined}
       >
@@ -131,9 +132,9 @@
                 class="block truncate rounded-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none"
                 >{row.name}</a
               >
-              {#if row.model !== row.name}
+              {#if modelLine !== ''}
                 <p class="truncate text-xs text-muted-foreground">
-                  {row.model}
+                  {modelLine}
                 </p>
               {/if}
             </div>

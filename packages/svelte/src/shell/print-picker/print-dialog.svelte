@@ -40,7 +40,10 @@
     Progress,
   } from '../../primitives';
   import { fileRefOf, setPrintDialogContext, SlotOutlet } from '../../slots';
-  import { stateBadgeVariant } from '../printers/presentation';
+  import {
+    printerProductNameOf,
+    stateBadgeVariant,
+  } from '../printers/presentation';
   import {
     type PrintPhase,
     printPhaseOf,
@@ -181,7 +184,10 @@
           {
             id: 'model',
             label: t('printPicker.fact.model'),
-            value: details.printer_model,
+            value:
+              details.printer_model === undefined
+                ? undefined
+                : printerProductNameOf(details.printer_model),
           },
         ]),
   );
@@ -526,7 +532,7 @@
               {:else if slicedForOther(row, details?.printer_model)}
                 <span class="text-xs text-warning-text">
                   {t('printPicker.otherModel', {
-                    model: details?.printer_model ?? '',
+                    model: printerProductNameOf(details?.printer_model ?? ''),
                   })}
                 </span>
               {/if}

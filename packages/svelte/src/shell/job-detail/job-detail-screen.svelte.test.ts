@@ -117,7 +117,9 @@ describe('JobDetailScreen', () => {
     await render(JobDetailScreen, { props: props() });
 
     await expect.element(page.getByText('Model')).toBeVisible();
-    await expect.element(page.getByText('CORE One')).toBeVisible();
+    await expect
+      .element(page.getByText('Prusa CORE One', { exact: true }))
+      .toBeVisible();
     expect(page.getByText('serial-printer-1').elements()).toHaveLength(0);
     expect(page.getByText('1.0.0', { exact: true }).elements()).toHaveLength(0);
   });
