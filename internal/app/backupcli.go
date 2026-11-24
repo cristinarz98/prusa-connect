@@ -51,8 +51,8 @@ func createBackup(ctx context.Context, out io.Writer, args []string) error {
 	configPath := flags.String("config", defaultConfigPath, "the operator's configuration file")
 	destination := flags.String("to", "", "backup root; defaults beside the configuration overlay")
 	toVersion := flags.String("upgrade-to", "", "the target version this backup precedes")
-	postgresMode := flags.String("postgres", string(upgrade.PostgresExternal),
-		"PostgreSQL backup mode: pg_dump, external or none")
+	postgresMode := flags.String("postgres", "",
+		"PostgreSQL backup mode: pg_dump, external or none; defaults to core.upgrade.postgres_backup")
 	acknowledge := flags.Bool("acknowledge-external-postgres", false,
 		"record that PostgreSQL is backed up externally or intentionally omitted")
 	jsonOutput := flags.Bool("json", false, "write the manifest as JSON")
@@ -69,13 +69,25 @@ func createBackup(ctx context.Context, out io.Writer, args []string) error {
 		return err
 	}
 
+	// The flag overrides the configuration, as restore and the upgrade read
+	// the mode from core.upgrade.postgres_backup alone.
+	mode := upgrade.PostgresMode(core.Upgrade.PostgresBackup)
+	if flagSet(flags, "postgres") {
+		mode = upgrade.PostgresMode(*postgresMode)
+	}
+
 	manager := backupManager(core, *destination)
-	plan, err := backupPlan(*configPath, core, *toVersion, upgrade.PostgresMode(*postgresMode), *acknowledge)
+	plan, err := backupPlan(*configPath, core, *toVersion, mode, *acknowledge)
 	if err != nil {
 		return err
 	}
 
 	manifest, err := manager.Create(ctx, plan)
+	if errors.Is(err, upgrade.ErrPostgresUnconfirmed) {
+		return fmt.Errorf("%w. Pass -postgres pg_dump, or set core.upgrade.postgres_backup: pg_dump "+
+			"in the configuration file, to put a dump of the database in the backup. "+
+			"If you back up the database yourself, pass -acknowledge-external-postgres", err)
+	}
 	if err != nil {
 		return err
 	}
@@ -87,6 +99,19 @@ func createBackup(ctx context.Context, out io.Writer, args []string) error {
 	fmt.Fprintf(out, "created backup %s with %d files\n", manifest.ID, len(manifest.Files))
 
 	return nil
+}
+
+// flagSet reports whether the command line named the flag, so a value the
+// operator typed is told apart from the default.
+func flagSet(flags *flag.FlagSet, name string) bool {
+	found := false
+	flags.Visit(func(set *flag.Flag) {
+		if set.Name == name {
+			found = true
+		}
+	})
+
+	return found
 }
 
 func listBackups(out io.Writer, args []string) error {

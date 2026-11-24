@@ -91,7 +91,9 @@ The manual download-and-replace procedure below remains the recovery path when
 the web application is unavailable:
 
 1. Stop the server with Ctrl+C.
-2. Run `prusa-connect backup create`.
+2. Run `prusa-connect backup create`. If the server keeps its data in
+   PostgreSQL, read
+   [Back up a PostgreSQL database](#back-up-a-postgresql-database) first.
 3. Download and verify the new binary as
    [Install from a release](./install-from-a-release.md#check-the-download)
    shows.
@@ -106,6 +108,30 @@ prusa-connect 0.1.0
 
 `--version` prints the version of the file you put there. The first line of
 the log and `GET /api/v1/health` name the same version once the server runs.
+
+## Back up a PostgreSQL database
+
+`prusa-connect backup create` reads `core.upgrade.postgres_backup` to decide
+what to do with a PostgreSQL database, the same way `backup restore` and the
+upgrade from the web application do:
+
+- `pg_dump` puts a dump of the database in the backup. The `pg_dump` and
+  `psql` programs must be on the `PATH` of the command.
+- `external` is the default. It means that you back up the database yourself,
+  so the backup holds no copy of it.
+- `none` means that the database has no backup at all.
+
+With `external` or `none`, the command stops with the error `PostgreSQL backup
+responsibility is not acknowledged`. Dump the database with your own tools
+first, then confirm it with `-acknowledge-external-postgres`:
+
+```text
+$ prusa-connect backup create -acknowledge-external-postgres
+```
+
+The `-postgres` flag sets the mode for one run and wins over the
+configuration file. `prusa-connect backup create -postgres pg_dump` puts a
+dump in the backup while the file still says `external`.
 
 ## Carry an update offline
 
