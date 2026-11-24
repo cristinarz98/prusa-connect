@@ -143,8 +143,9 @@ spec:
             - name: config
               mountPath: /etc/prusa-connect
               readOnly: true
-            # The two files the core writes beside the operator's own: the
-            # resource overlay the API rewrites, and the authorization graph.
+            # What the core writes beside the operator's own file: the
+            # resource overlay the API rewrites, the authorization graph, and
+            # the extensions it installs with their data.
             # Without it the core stops at startup under readOnlyRootFilesystem
             # with `mkdir config/config.d: read-only file system`.
             - name: state

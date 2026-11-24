@@ -30,10 +30,12 @@ data:
         level: info
         # json, because a cluster log pipeline parses rather than reads.
         format: json
-      # Both paths are set rather than derived. An unset key derives from the
-      # directory holding the file, and that directory is a read-only ConfigMap
-      # mount here.
+      # These three paths are set rather than derived. An unset key derives
+      # from the directory holding the file, and that directory is a read-only
+      # ConfigMap mount here. core.modules is where an installed extension is
+      # written, and each extension's own data goes in module-data beside it.
       overlay: /config/config.d/resources.json
+      modules: /config/config.d/modules
       authz:
         database: /config/config.d/authz.db
       # The subject every request is served as while core.auth.issuer is empty,

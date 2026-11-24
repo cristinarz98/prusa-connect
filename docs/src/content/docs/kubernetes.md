@@ -39,7 +39,7 @@ is the cluster around it.
 | mount | from | why |
 |---|---|---|
 | `/etc/prusa-connect` | the ConfigMap, read-only | the file `-config` names |
-| `/config/config.d` | claim `prusa-connect-state` | the authorization graph and the resource overlay |
+| `/config/config.d` | claim `prusa-connect-state` | the authorization graph, the resource overlay, and the installed extensions with their data |
 | `/storage` | claim `prusa-connect-storage` | uploaded files |
 | `/tmp` | an `emptyDir` | scratch a read-only root filesystem otherwise denies |
 
@@ -198,6 +198,7 @@ docker push registry.example.com/prusa-connect:0.2.0
 | Symptom | Cause |
 |---|---|
 | `mkdir config/config.d: read-only file system` | the state claim is not mounted, or `core.overlay` points outside it |
+| installing an extension fails with `read-only file system` | `core.modules` is unset or points outside the state claim, so the core writes the extension beside the ConfigMap's file |
 | the pod is `Running` and never `Ready` | a required instance is not serving. Read `blocked` in the readiness body |
 | a key set in the ConfigMap has no effect | the pod has not restarted since the edit |
 | the rollout hangs with two pods | the strategy is `RollingUpdate` and the claim is `ReadWriteOnce` |

@@ -99,6 +99,7 @@ type manifestSettings struct {
 			Addr string `yaml:"addr"`
 		} `yaml:"api"`
 		Overlay string `yaml:"overlay"`
+		Modules string `yaml:"modules"`
 		Authz   struct {
 			Database string `yaml:"database"`
 		} `yaml:"authz"`

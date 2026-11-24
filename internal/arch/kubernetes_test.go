@@ -85,7 +85,8 @@ func TestTheDeploymentRunsTheCoreAgainstTheConfigMapItMounts(t *testing.T) {
 // TestEveryPathTheDeploymentWritesHasAVolumeUnderIt is the failure the read-only
 // root filesystem produces. The core creates the directory for the
 // authorization graph at startup, and stops with `mkdir config/config.d:
-// read-only file system` when nothing is mounted over it.
+// read-only file system` when nothing is mounted over it. An extension install
+// writes under core.modules and fails the same way.
 func TestEveryPathTheDeploymentWritesHasAVolumeUnderIt(t *testing.T) {
 	t.Parallel()
 
@@ -95,6 +96,7 @@ func TestEveryPathTheDeploymentWritesHasAVolumeUnderIt(t *testing.T) {
 
 	written := map[string]string{
 		"core.overlay":                        settings.Core.Overlay,
+		"core.modules":                        settings.Core.Modules,
 		"core.authz.database":                 settings.Core.Authz.Database,
 		"resources.storage.local.config.root": settings.Resources.Storage["local"].Config.Root,
 		// A cluster's ConfigMap holds no pairing, so the core writes it beside
@@ -102,6 +104,9 @@ func TestEveryPathTheDeploymentWritesHasAVolumeUnderIt(t *testing.T) {
 		// package imports nothing else internal (ADR-20260824-kkr), so the
 		// name is written out.
 		"the Beta Portal pairing": path.Join(path.Dir(settings.Core.Overlay), "beta-portal-pairing.json"),
+		// Each installed extension keeps its data in a folder beside
+		// core.modules, which is moduleDataRoot in internal/app.
+		"the extensions' data": path.Join(path.Dir(settings.Core.Modules), "module-data"),
 	}
 
 	for key, path := range written {

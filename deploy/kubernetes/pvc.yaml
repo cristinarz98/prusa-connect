@@ -22,9 +22,11 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      # The authorization graph and the resource overlay. Both are small: the
-      # graph holds one row per grant and the overlay one entry per instance the
-      # API declared.
+      # The authorization graph, the resource overlay and the installed
+      # extensions. The graph holds one row per grant and the overlay one entry
+      # per instance the API declared. An extension release can be up to
+      # 256 MiB, and an update keeps the release it replaced, so raise this for
+      # a tenant that installs large service extensions.
       storage: 1Gi
 ---
 apiVersion: v1

@@ -342,9 +342,11 @@ at startup and nothing re-reads it. There is no `SIGHUP` handler and no file wat
 the ConfigMap needs `kubectl rollout restart deployment/prusa-connect` whichever way it is
 mounted. The mount mode decides only what the next start finds on disk.
 
-Set `core.overlay` and `core.authz.database` to absolute paths under a writable volume whenever the
-file is mounted anywhere other than `/config`. Both keys derive from the directory holding the
-configuration file when they are left unset, and that directory is the read-only mount.
+Set `core.overlay`, `core.modules` and `core.authz.database` to absolute paths under a writable
+volume whenever the file is mounted anywhere other than `/config`. All three keys derive from the
+directory holding the configuration file when they are left unset, and that directory is the
+read-only mount. With `core.modules` left there, the core starts and every extension install
+fails.
 
 ### Credentials arrive as mounted files
 
@@ -392,7 +394,7 @@ use volumes rather than variables, so the same fix reaches it without moving the
 
 | Path | Contents | Config key |
 |---|---|---|
-| `/config/config.d` | the resource overlay the API writes, and the authorization graph | `core.overlay`, `core.authz.database` |
+| `/config/config.d` | the resource overlay the API writes, the authorization graph, and the installed extensions | `core.overlay`, `core.authz.database`, `core.modules` |
 | `/storage` | the `local` storage instance | `resources.storage.local.config.root` |
 | `/data`, `/files` | created by the image and mounted by compose. The shipped configuration writes nothing there | |
 | `/tmp` | scratch space, because the root filesystem is read-only | |
@@ -405,8 +407,8 @@ prusa-connect core: create the directory for the authorization graph:
 mkdir config/config.d: read-only file system
 ```
 
-Give it a volume, or point `core.overlay` and `core.authz.database` at a path under `/data` if one
-mutable path per instance suits the deployment better.
+Give it a volume, or point `core.overlay`, `core.authz.database` and `core.modules` at a path under
+`/data` if one mutable path per instance suits the deployment better.
 
 `/config/config.d`, `/data`, `/files` and `/storage` are created in the image owned by
 `prusa:prusa`, mode `0750`.
