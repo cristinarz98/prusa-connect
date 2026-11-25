@@ -183,7 +183,9 @@ request with no token is refused with `401 core.auth/TOKEN_INVALID`.
 Only a session mints a token. A mint that presents a token instead is refused
 with `403 core.auth/SESSION_REQUIRED`, so a leaked token cannot make a copy of
 itself that outlives its revocation. A token lives ninety days unless the mint
-names an `expires_at`, and that expiry is at most 365 days away.
+names an `expires_at`, and that expiry is at most 365 days away. An expiry up
+to five minutes past that is taken as 365 days, so a browser clock slightly
+ahead of the server's does not refuse the mint.
 
 Your own server mints the same way once it has accounts, which is
 `core.auth.local: true` from [Local accounts](./local-accounts.md).

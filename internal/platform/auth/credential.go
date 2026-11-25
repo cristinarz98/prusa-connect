@@ -55,6 +55,13 @@ const (
 	APIMaxLifetimeDays = 365
 	// APIMaxLifetime is APIMaxLifetimeDays as a duration.
 	APIMaxLifetime = APIMaxLifetimeDays * 24 * time.Hour
+	// APIExpirySkew is how far past APIMaxLifetime a requested expiry may
+	// reach and still be taken, lowered to APIMaxLifetime. A browser computes
+	// the expiry from its own clock, and one even slightly ahead of this
+	// server's pushed a 365-day request past the limit. Five minutes is the
+	// usual clock-skew allowance, as in Kerberos. Lowering the expiry keeps
+	// the 365-day cap.
+	APIExpirySkew = 5 * time.Minute
 	// MQTTLifetime is the life of a broker credential.
 	MQTTLifetime = 12 * time.Hour
 )
@@ -260,8 +267,9 @@ func IssueAtGeneration(
 
 // IssueAPI mints a named api credential and saves it. The token is returned
 // once, like Issue's. An expiry that is not after now is refused with
-// ErrExpiryPassed, one past APIMaxLifetime with ErrExpiryTooFar, and no expiry
-// takes APILifetime.
+// ErrExpiryPassed, and no expiry takes APILifetime. An expiry past
+// APIMaxLifetime by at most APIExpirySkew is lowered to now plus
+// APIMaxLifetime, and one further past is refused with ErrExpiryTooFar.
 //
 // LastSeen starts at zero and not at the mint. For this kind a listing renders
 // it as last used, and a credential nobody has presented has not been used.
@@ -292,9 +300,13 @@ func IssueAPI(ctx context.Context, store Store, spec APISpec, now time.Time) (To
 		return "", Credential{}, fmt.Errorf("%w: %s is not after %s", ErrExpiryPassed, expiresAt, now)
 	}
 
-	if expiresAt.After(now.Add(APIMaxLifetime)) {
+	if expiresAt.After(now.Add(APIMaxLifetime + APIExpirySkew)) {
 		return "", Credential{}, fmt.Errorf("%w: %s is more than %s after %s",
 			ErrExpiryTooFar, expiresAt, APIMaxLifetime, now)
+	}
+
+	if expiresAt.After(now.Add(APIMaxLifetime)) {
+		expiresAt = now.Add(APIMaxLifetime)
 	}
 
 	fence := spec.Fence

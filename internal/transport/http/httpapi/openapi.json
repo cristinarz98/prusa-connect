@@ -2125,7 +2125,7 @@
         "additionalProperties": false,
         "properties": {
           "expires_at": {
-            "description": "When this server stops accepting it. Empty takes ninety days. The latest allowed is 365 days away.",
+            "description": "When this server stops accepting it. Empty takes ninety days. At most 365 days away. Up to five minutes past is taken as 365 days.",
             "format": "date-time",
             "type": "string"
           },
@@ -14390,7 +14390,7 @@
         ]
       },
       "post": {
-        "description": "Mints a bearer token and returns it once; this server keeps only a hash of it. It is accepted wherever a session is on the HTTP surface and resolves to the same principal, with the same grants. A mint takes a sign-in, which is a session or a Prusa Account token that a pairing names a person with. An api credential cannot mint another one, and neither can a token paired to a service account. The expiry is at most 365 days away. Your own takes no grant beyond being signed in. One for another person or for a service account takes configure_resource on the auth resource kind, which is what administering this server's identity means in the graph. The scopes limit what the credential may use of the principal's grants: read observes, operate also acts on printers and writes files, administer allows every grant the principal holds. A credential never reaches more than its principal does. Empty scopes take read.",
+        "description": "Mints a bearer token and returns it once; this server keeps only a hash of it. It is accepted wherever a session is on the HTTP surface and resolves to the same principal, with the same grants. A mint takes a sign-in, which is a session or a Prusa Account token that a pairing names a person with. An api credential cannot mint another one, and neither can a token paired to a service account. The expiry is at most 365 days away, and one up to five minutes past that is taken as 365 days. Your own takes no grant beyond being signed in. One for another person or for a service account takes configure_resource on the auth resource kind, which is what administering this server's identity means in the graph. The scopes limit what the credential may use of the principal's grants: read observes, operate also acts on printers and writes files, administer allows every grant the principal holds. A credential never reaches more than its principal does. Empty scopes take read.",
         "operationId": "create-credential",
         "requestBody": {
           "content": {

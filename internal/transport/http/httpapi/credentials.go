@@ -131,7 +131,7 @@ type credentialBody struct {
 	// Subject is optional and defaults to the caller. Naming somebody else
 	// takes the identity-administration grant.
 	Subject   string     `json:"subject,omitempty"    doc:"The principal it speaks for, in tuple spelling: user:<id> or service_account:<id>. Empty means the caller."                         maxLength:"128"`
-	ExpiresAt *time.Time `json:"expires_at,omitempty" doc:"When this server stops accepting it. Empty takes ninety days. The latest allowed is 365 days away."`
+	ExpiresAt *time.Time `json:"expires_at,omitempty" doc:"When this server stops accepting it. Empty takes ninety days. At most 365 days away. Up to five minutes past is taken as 365 days."`
 	Scopes    []string   `json:"scopes,omitempty"     doc:"What it may use of the principal's grants: read, operate, administer. Each allows what the one before it allows. Empty takes read."                 nullable:"false" enum:"read,operate,administer" maxItems:"3"`
 }
 
@@ -220,7 +220,8 @@ func registerCreateCredential(api huma.API, cfg Config) {
 			"principal, with the same grants. A mint takes a sign-in, which is a session or a Prusa " +
 			"Account token that a pairing names a person with. An api credential cannot mint another " +
 			"one, and neither can a token paired to a service account. The " +
-			"expiry is at most 365 days away. Your own takes no grant beyond being signed in. One " +
+			"expiry is at most 365 days away, and one up to five minutes past that is taken as " +
+			"365 days. Your own takes no grant beyond being signed in. One " +
 			"for another person or for a service account takes configure_resource on the auth " +
 			"resource kind, which is what administering this server's identity means in the graph. " +
 			"The scopes limit what the credential may use of the principal's grants: read observes, " +

@@ -44,7 +44,8 @@ func TestAnAPICredentialIsStoredAsAHashAndReturnedOnce(t *testing.T) {
 	require.True(t, stored.LastSeen.IsZero(), "a credential nobody has presented has no last-used time")
 }
 
-// The expiries a mint can produce, and the one it refuses.
+// The expiries a mint can produce, the ones it lowers to the upper limit, and
+// the ones it refuses.
 func TestAnAPICredentialTakesTheDefaultLifetimeOrTheOneAskedFor(t *testing.T) {
 	t.Parallel()
 
@@ -63,8 +64,24 @@ func TestAnAPICredentialTakesTheDefaultLifetimeOrTheOneAskedFor(t *testing.T) {
 			want: mintedAt.Add(APIMaxLifetime),
 		},
 		{
-			name: "an expiry past the upper limit is refused", expiresAt: mintedAt.Add(APIMaxLifetime + time.Second),
-			refused: ErrExpiryTooFar,
+			name:      "an expiry a millisecond past the upper limit is lowered to it",
+			expiresAt: mintedAt.Add(APIMaxLifetime + time.Millisecond), want: mintedAt.Add(APIMaxLifetime),
+		},
+		{
+			name:      "an expiry a second past the upper limit is lowered to it",
+			expiresAt: mintedAt.Add(APIMaxLifetime + time.Second), want: mintedAt.Add(APIMaxLifetime),
+		},
+		{
+			name:      "an expiry five minutes past the upper limit is lowered to it",
+			expiresAt: mintedAt.Add(APIMaxLifetime + 5*time.Minute), want: mintedAt.Add(APIMaxLifetime),
+		},
+		{
+			name:      "an expiry just past the clock-skew margin is refused",
+			expiresAt: mintedAt.Add(APIMaxLifetime + 5*time.Minute + time.Millisecond), refused: ErrExpiryTooFar,
+		},
+		{
+			name:      "an expiry a day past the upper limit is refused",
+			expiresAt: mintedAt.Add(APIMaxLifetime + 24*time.Hour), refused: ErrExpiryTooFar,
 		},
 	}
 

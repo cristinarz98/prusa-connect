@@ -298,6 +298,35 @@ func TestAStolenTokenCannotMintASiblingThatOutlivesIt(t *testing.T) {
 	mintOver(t, running, owner, `{"name":"a year","scopes":["administer"],"expires_at":"`+withinLimit+`"}`)
 }
 
+// TestAYearFromABrowserClockSlightlyAheadIsLoweredToTheLimit is the 365-day
+// mint from a browser whose clock runs a second ahead of this server's. The
+// mint is answered with the expiry lowered to 365 days from the server's now.
+func TestAYearFromABrowserClockSlightlyAheadIsLoweredToTheLimit(t *testing.T) {
+	t.Parallel()
+
+	dir := t.TempDir()
+	running := start(t, dir, bearerStreamConfig(dir))
+
+	owner := signUpTheOwner(t, running)
+
+	before := time.Now()
+	ahead := before.Add(auth.APIMaxLifetime + time.Second).UTC().Format(time.RFC3339Nano)
+	got := send(t, running, http.MethodPost, "/api/v1/auth/credentials",
+		`{"name":"a year","scopes":["administer"],"expires_at":"`+ahead+`"}`, owner)
+	after := time.Now()
+	require.Equal(t, http.StatusCreated, got.status, "a year a second ahead was refused: %s", got.body)
+
+	var minted struct {
+		ExpiresAt time.Time `json:"expires_at"`
+	}
+
+	require.NoError(t, json.Unmarshal([]byte(got.body), &minted))
+	require.False(t, minted.ExpiresAt.Before(before.Add(auth.APIMaxLifetime).Truncate(time.Second)),
+		"the expiry %s was lowered below 365 days from the mint", minted.ExpiresAt)
+	require.False(t, minted.ExpiresAt.After(after.Add(auth.APIMaxLifetime)),
+		"the expiry %s is past 365 days from the mint", minted.ExpiresAt)
+}
+
 // TestAStolenAdministratorTokenCannotAdministerIdentity is the path around the
 // mint rule. With an administrator's token alone, a caller could create an
 // account, reset a password or pair an outside account, and then sign in. Each
